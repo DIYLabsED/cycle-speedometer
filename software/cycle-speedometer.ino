@@ -120,7 +120,7 @@ void loop(){
 
   updateTime();
 
-  displayInfo();
+  handleDisplay();
 
 }
 
@@ -251,7 +251,7 @@ void finishSetup(){
 
 }
 
-void displayInfo(){
+void handleDisplay(){
 
   if(BOOTSEL){
 
@@ -366,7 +366,7 @@ void page2(){
   oled.setTextSize(1);
   oled.setCursor(0, 32);
   oled.print("Total distance\ntravelled with this\ndevice active");
-  
+
   oled.display();
 
 }
