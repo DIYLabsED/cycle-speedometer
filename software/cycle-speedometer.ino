@@ -3,7 +3,7 @@ A simple sketch for a cycle speedometer, which senses the rotation of
 the wheel, and displays your current speed/distance.
 
 Written by Adbhut Patil
-DIY Labs 2024, youtube.com/@onelabtorulethemall
+DIY Labs 2024, youtube.com/@onelabtorulethemall, github.com/DIYLabsED
 */
 
 #define WAIT_FOR_SERIAL // Comment out to disable waiting for serial port, used for debugging
@@ -50,7 +50,7 @@ float speed;
 float currentRideDistance; // Distance ridden since device has been powered on
 float totalDistance;       // Total distance this device has been recording, saved to EEPROM
 
-int page = 0;
+int page = 1;
 const int numPages = 2;
 
 // Cross bitmap
@@ -308,6 +308,11 @@ void error(){
 
 void page0(){
 
+  // Left intentionally blank, in case you want the display turned off
+
+}
+
+void page1(){
   // If datalogging is disabled, draw a little cross, else, a little check mark
   if(noDataLogging){
     oled.drawBitmap(0, 56, bitmapCross, bitmapCrossWidth, bitmapCrossHeight, SSD1306_WHITE);
@@ -331,9 +336,19 @@ void page0(){
   oled.print("/");
   oled.print(day);
 
-}
+  // Draw speed and distance
+  oled.setTextSize(3);
+  oled.setCursor(0, 0);
+  oled.print(speed);
 
-void page1(){
+  oled.setTextSize(2);
+  oled.print(" m/s");
 
+  oled.setTextSize(3);
+  oled.setCursor(0, 25);  
+  oled.print(currentRideDistance);
+  
+  oled.setTextSize(2);
+  oled.println(" km");  
 
 }
