@@ -226,9 +226,15 @@ void initMicroSD(){
 
 void finishSetup(){
 
-  pixel.setPixelColor(0, pixel.Color(0, 20, 0));
-  pixel.show();
+  if(noDataLogging){
+    pixel.setPixelColor(0, pixel.Color(0, 0, 20));
+  }
 
+  else{
+    pixel.setPixelColor(0, pixel.Color(0, 20, 0));
+  }
+
+  pixel.show();
   Serial.println("init complete!");
 
 }
