@@ -51,7 +51,7 @@ float currentRideDistance; // Distance ridden since device has been powered on
 float totalDistance;       // Total distance this device has been recording, saved to EEPROM
 
 int page = 1;
-const int numPages = 2;
+const int numPages = 3;
 
 // Cross bitmap
 static const unsigned char PROGMEM bitmapCross[] = 
@@ -274,6 +274,10 @@ void displayInfo(){
       page1();
       break;
 
+    case 2:
+      page2();
+      break;
+
     default:
       error();
       break;
@@ -350,5 +354,19 @@ void page1(){
   
   oled.setTextSize(2);
   oled.println(" km");  
+
+}
+
+void page2(){
+
+  oled.setCursor(0, 0);
+  oled.setTextSize(2);
+  oled.print(totalDistance);
+  oled.print(" km");
+  oled.setTextSize(1);
+  oled.setCursor(0, 32);
+  oled.print("Total distance\ntravelled with this\ndevice active");
+  
+  oled.display();
 
 }
