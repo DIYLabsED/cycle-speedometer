@@ -1,5 +1,5 @@
 /*
-A simlpe sketch for a cycle speedometer, which senses the rotation of
+A simple sketch for a cycle speedometer, which senses the rotation of
 the wheel, and displays your current speed/distance.
 
 Written by Adbhut Patil
