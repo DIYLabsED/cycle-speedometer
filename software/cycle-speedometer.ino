@@ -51,7 +51,7 @@ float currentRideDistance; // Distance ridden since device has been powered on
 float totalDistance;       // Total distance this device has been recording, saved to EEPROM
 
 int page = 1;
-const int numPages = 3;
+const int numPages = 4;
 
 // Cross bitmap
 static const unsigned char PROGMEM bitmapCross[] = 
@@ -267,15 +267,19 @@ void handleDisplay(){
   switch(page){
 
     case 0:
-      page0();
+      blankDisplay();
       break;
     
     case 1:
-      page1();
+      displaySpeedDistance();
       break;
 
     case 2:
-      page2();
+      displayTotalDistance();
+      break;
+
+    case 3:
+      displayEject();
       break;
 
     default:
@@ -310,13 +314,13 @@ void error(){
 
 }
 
-void page0(){
+void blankDisplay(){
 
   // Left intentionally blank, in case you want the display turned off
 
 }
 
-void page1(){
+void displaySpeedDistance(){
   // If datalogging is disabled, draw a little cross, else, a little check mark
   if(noDataLogging){
     oled.drawBitmap(0, 56, bitmapCross, bitmapCrossWidth, bitmapCrossHeight, SSD1306_WHITE);
@@ -357,7 +361,7 @@ void page1(){
 
 }
 
-void page2(){
+void displayTotalDistance(){
 
   oled.setCursor(0, 0);
   oled.setTextSize(2);
@@ -368,5 +372,10 @@ void page2(){
   oled.print("Total distance\ntravelled with this\ndevice active");
 
   oled.display();
+
+}
+
+void displayEject(){
+
 
 }
