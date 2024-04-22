@@ -97,7 +97,7 @@ void setup(){
   #endif
 
 
-  setCommunicationPins(); // Set I2C and SPI pins
+  setCommunicationPins();
   initNeoPixel();
   initOLED();
   initRTC();
@@ -109,6 +109,7 @@ void setup(){
 
 void loop(){
 
+  displayInfo();
 
 }
 
@@ -239,5 +240,25 @@ void finishSetup(){
 
 }
 
+void displayInfo(){
 
+  if(BOOTSEL){
+
+  }
+
+  else{
+    // If datalogging is disabled, draw a little cross, else, a little check mark
+    if(noDataLogging){
+      oled.drawBitmap(0, 56, bitmapCross, bitmapCrossWidth, bitmapCrossHeight, SSD1306_WHITE);
+    }
+
+    else{
+      oled.drawBitmap(0, 56, bitmapCheck, bitmapCheckWidth, bitmapCheckHeight, SSD1306_WHITE);
+    }    
+
+  }
+
+  oled.display();
+
+}
 
