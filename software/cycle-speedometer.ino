@@ -54,8 +54,12 @@ const unsigned int ejectSecondsTotal = 10;
 unsigned int ejectSecondsRemaining = ejectSecondsTotal;
 unsigned int ejectPrevSeconds = 0;
 
+const unsigned int memWipeSecondsTotal = 30;
+unsigned int memWipeSecondsRemaining = memWipeSecondsTotal;
+unsigned int memWipePrevSeconds = 0;
+
 int page = 0;
-const int numPages = 4;
+const int numPages = 5;
 
 // Cross bitmap
 static const unsigned char PROGMEM bitmapCross[] = 
@@ -266,6 +270,8 @@ void handleDisplay(){
     while(BOOTSEL); // Wait until button has been released
 
   }
+  
+  Serial.println(page);
 
   oled.clearDisplay();
 
@@ -281,6 +287,10 @@ void handleDisplay(){
 
     case 2:
       displayEject();
+      break;
+
+    case 3:
+      displayMemoryWipe();
       break;
 
     default:
@@ -413,7 +423,9 @@ void displayEject(){
 
       ejectSecondsRemaining = ejectSecondsTotal; // Reset countdown
 
-      return; // Return form function
+      while(BOOTSEL); // Wait for BOOTSEL button release
+
+      return; // Return from function
 
     }
 
@@ -442,5 +454,55 @@ void eject(){
   oled.display();
 
   while(true);
+
+}
+
+void displayMemoryWipe(){
+
+  while(memWipeSecondsRemaining > 0){ // While timer has not expired
+
+    if((millis()/1000) != memWipePrevSeconds){ // If a new second has passed
+
+      memWipePrevSeconds = millis()/1000;
+      memWipeSecondsRemaining--;
+      
+      oled.clearDisplay();
+      oled.setCursor(0, 0);
+      oled.setTextSize(2);
+      oled.print("MEM WIPE!");
+      oled.setCursor(0, 20);
+      oled.setTextSize(1);
+      oled.print("After ");
+      oled.print(memWipeSecondsRemaining);
+
+      if(memWipeSecondsRemaining == 1){
+        oled.print(" second, THIS WILL IRREVERSIBLY DELETE EVERYTHING");
+      }
+
+      else{
+        oled.print(" seconds, THIS WILL IRREVERSIBLY DELETE EVERYTHING!");
+      }
+
+      oled.display();
+
+    }
+
+    if(BOOTSEL){
+
+      page++;
+      page = page % numPages; // Go to the next page
+
+      memWipeSecondsRemaining = memWipeSecondsTotal; // Reset countdown
+
+      while(BOOTSEL); // Wait for BOOTSEL button release
+
+      return; // Return from function
+
+    }
+
+  }
+
+  // Timer has expired
+  //memWipe();
 
 }
