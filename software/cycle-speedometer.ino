@@ -103,8 +103,7 @@ void setup(){
   initRTC();
   initMicroSD();
 
-  pixel.setPixelColor(0, pixel.Color(0, 20, 0));
-  pixel.show();
+  finishSetup();
 
 }
 
@@ -225,6 +224,14 @@ void initMicroSD(){
 
 }
 
+void finishSetup(){
+
+  pixel.setPixelColor(0, pixel.Color(0, 20, 0));
+  pixel.show();
+
+  Serial.println("init complete!");
+
+}
 
 
 
