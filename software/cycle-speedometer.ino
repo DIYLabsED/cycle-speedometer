@@ -46,6 +46,13 @@ uint8_t day;
 uint8_t hour;
 uint8_t minute;
 
+float speed;
+float currentRideDistance; // Distance ridden since device has been powered on
+float totalDistance;       // Total distance this device has been recording, saved to EEPROM
+
+int page = 0;
+const int numPages = 2;
+
 // Cross bitmap
 static const unsigned char PROGMEM bitmapCross[] = 
 {
@@ -246,35 +253,30 @@ void finishSetup(){
 
 void displayInfo(){
 
-  oled.clearDisplay();
-
   if(BOOTSEL){
+
+    page++;
+    page = page % numPages;
+
+    while(BOOTSEL); // Wait until button has been released
 
   }
 
-  else{
-    // If datalogging is disabled, draw a little cross, else, a little check mark
-    if(noDataLogging){
-      oled.drawBitmap(0, 56, bitmapCross, bitmapCrossWidth, bitmapCrossHeight, SSD1306_WHITE);
-    }
+  oled.clearDisplay();
 
-    else{
-      oled.drawBitmap(0, 56, bitmapCheck, bitmapCheckWidth, bitmapCheckHeight, SSD1306_WHITE);
-    }    
+  switch(page){
 
-    // Draw the current date and time
-    oled.setCursor(18, 56);
-    oled.setTextSize(1);
+    case 0:
+      page0();
+      break;
+    
+    case 1:
+      page1();
+      break;
 
-    oled.print(hour);
-    oled.print(":");
-    oled.print(minute);
-    oled.print("  ");
-    oled.print(year);
-    oled.print("/");
-    oled.print(month);
-    oled.print("/");
-    oled.print(day);
+    default:
+      error();
+      break;
 
   }
 
@@ -291,5 +293,47 @@ void updateTime(){
   day    = time.day();
   hour   = time.hour();
   minute = time.minute();
+
+}
+
+void error(){
+
+  oled.clearDisplay();
+  oled.setTextSize(1);
+  oled.setCursor(0, 0);
+  oled.print("Error detected\nTry rebooting");
+  oled.display();
+
+}
+
+void page0(){
+
+  // If datalogging is disabled, draw a little cross, else, a little check mark
+  if(noDataLogging){
+    oled.drawBitmap(0, 56, bitmapCross, bitmapCrossWidth, bitmapCrossHeight, SSD1306_WHITE);
+  }
+
+  else{
+    oled.drawBitmap(0, 56, bitmapCheck, bitmapCheckWidth, bitmapCheckHeight, SSD1306_WHITE);
+  }    
+
+  // Draw the current date and time
+  oled.setCursor(18, 56);
+  oled.setTextSize(1);
+
+  oled.print(hour);
+  oled.print(":");
+  oled.print(minute);
+  oled.print("  ");
+  oled.print(year);
+  oled.print("/");
+  oled.print(month);
+  oled.print("/");
+  oled.print(day);
+
+}
+
+void page1(){
+
 
 }
