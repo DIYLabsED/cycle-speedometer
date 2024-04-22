@@ -54,12 +54,12 @@ const unsigned int ejectSecondsTotal = 10;
 unsigned int ejectSecondsRemaining = ejectSecondsTotal;
 unsigned int ejectPrevSeconds = 0;
 
-const unsigned int memWipeSecondsTotal = 30;
+const unsigned int memWipeSecondsTotal = 90;
 unsigned int memWipeSecondsRemaining = memWipeSecondsTotal;
 unsigned int memWipePrevSeconds = 0;
 
 int page = 0;
-const int numPages = 5;
+const int numPages = 4;
 
 // Cross bitmap
 static const unsigned char PROGMEM bitmapCross[] = 
@@ -419,11 +419,12 @@ void displayEject(){
     if(BOOTSEL){
 
       page++;
+
       page = page % numPages; // Go to the next page
 
       ejectSecondsRemaining = ejectSecondsTotal; // Reset countdown
 
-      while(BOOTSEL); // Wait for BOOTSEL button release
+      while(BOOTSEL);
 
       return; // Return from function
 
@@ -476,11 +477,11 @@ void displayMemoryWipe(){
       oled.print(memWipeSecondsRemaining);
 
       if(memWipeSecondsRemaining == 1){
-        oled.print(" second, THIS WILL IRREVERSIBLY DELETE EVERYTHING");
+        oled.print(" second,\nTHIS WILL\nIRREVERSIBLY DELETE\nEVERYTHING");
       }
 
       else{
-        oled.print(" seconds, THIS WILL IRREVERSIBLY DELETE EVERYTHING!");
+        oled.print(" seconds,\nTHIS WILL\nIRREVERSIBLY DELETE\nEVERYTHING!");
       }
 
       oled.display();
@@ -488,13 +489,14 @@ void displayMemoryWipe(){
     }
 
     if(BOOTSEL){
-
+      
       page++;
+
       page = page % numPages; // Go to the next page
 
-      memWipeSecondsRemaining = memWipeSecondsTotal; // Reset countdown
+      memWipeSecondsRemaining = memWipeSecondsTotal; // Reset countdow
 
-      while(BOOTSEL); // Wait for BOOTSEL button release
+      while(BOOTSEL);
 
       return; // Return from function
 
