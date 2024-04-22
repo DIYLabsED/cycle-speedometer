@@ -39,10 +39,12 @@ const int PIN_BUILTIN_RGB = 16; // Pin connected to WS2812B LED
 
 // Variables used for display data
 bool noDataLogging = false;
-float speed;
-float distance;
-float totalDistance;
 
+uint16_t year;
+uint8_t month;
+uint8_t day;
+uint8_t hour;
+uint8_t minute;
 
 // Cross bitmap
 static const unsigned char PROGMEM bitmapCross[] = 
@@ -108,6 +110,8 @@ void setup(){
 }
 
 void loop(){
+
+  updateTime();
 
   displayInfo();
 
@@ -242,6 +246,8 @@ void finishSetup(){
 
 void displayInfo(){
 
+  oled.clearDisplay();
+
   if(BOOTSEL){
 
   }
@@ -256,9 +262,34 @@ void displayInfo(){
       oled.drawBitmap(0, 56, bitmapCheck, bitmapCheckWidth, bitmapCheckHeight, SSD1306_WHITE);
     }    
 
+    // Draw the current date and time
+    oled.setCursor(18, 56);
+    oled.setTextSize(1);
+
+    oled.print(hour);
+    oled.print(":");
+    oled.print(minute);
+    oled.print("  ");
+    oled.print(year);
+    oled.print("/");
+    oled.print(month);
+    oled.print("/");
+    oled.print(day);
+
   }
 
   oled.display();
 
 }
 
+void updateTime(){
+
+  DateTime time = rtc.now();
+
+  year   = time.year();
+  month = time.month();
+  day    = time.day();
+  hour   = time.hour();
+  minute = time.minute();
+
+}
