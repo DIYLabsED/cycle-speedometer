@@ -54,7 +54,7 @@ const unsigned int ejectSecondsTotal = 10;
 unsigned int ejectSecondsRemaining = ejectSecondsTotal;
 unsigned int ejectPrevSeconds = 0;
 
-int page = 1;
+int page = 0;
 const int numPages = 4;
 
 // Cross bitmap
@@ -272,18 +272,14 @@ void handleDisplay(){
   switch(page){
 
     case 0:
-      blankDisplay();
+      displaySpeedDistance();
       break;
     
     case 1:
-      displaySpeedDistance();
-      break;
-
-    case 2:
       displayTotalDistance();
       break;
 
-    case 3:
+    case 2:
       displayEject();
       break;
 
