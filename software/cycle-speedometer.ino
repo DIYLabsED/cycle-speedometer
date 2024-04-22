@@ -50,6 +50,10 @@ float speed;
 float currentRideDistance; // Distance ridden since device has been powered on
 float totalDistance;       // Total distance this device has been recording, saved to EEPROM
 
+const unsigned int ejectSecondsTotal = 10;
+unsigned int ejectSecondsRemaining = ejectSecondsTotal;
+unsigned int ejectPrevSeconds = 0;
+
 int page = 1;
 const int numPages = 4;
 
@@ -228,7 +232,8 @@ void initMicroSD(){
     oled.println("Card not detected!\n\nPress BOOTSEL to\nproceed\n(without datalogging)");
     oled.display();
 
-    while(!BOOTSEL); // Waits until BOOTSEL button
+    while(!BOOTSEL); // Waits until BOOTSEL button is pressed
+    while(BOOTSEL);  // Waits until BOOTSEL buttosn is released
 
     noDataLogging = true;
 
@@ -377,5 +382,69 @@ void displayTotalDistance(){
 
 void displayEject(){
 
+  while(ejectSecondsRemaining > 0){ // While timer has not expired
+
+    if((millis()/1000) != ejectPrevSeconds){ // If a new second has passed
+
+      ejectPrevSeconds = millis()/1000;
+      ejectSecondsRemaining--;
+      
+      oled.clearDisplay();
+      oled.setCursor(0, 0);
+      oled.setTextSize(2);
+      oled.print("EJECT!");
+      oled.setCursor(0, 20);
+      oled.setTextSize(1);
+      oled.print("After ");
+      oled.print(ejectSecondsRemaining);
+
+      if(ejectSecondsRemaining == 1){
+        oled.print(" second, this\nwill finalize all\ndata writing\noperations");
+      }
+
+      else{
+        oled.print(" seconds, this\nwill finalize all\ndata writing\noperations");
+      }
+
+      oled.display();
+
+    }
+
+    if(BOOTSEL){
+
+      page++;
+      page = page % numPages; // Go to the next page
+
+      ejectSecondsRemaining = ejectSecondsTotal; // Reset countdown
+
+      return; // Return form function
+
+    }
+
+  }
+
+  // Timer has expired
+  eject();
+
+}
+
+void eject(){
+
+  oled.clearDisplay();
+  oled.setCursor(0, 0);
+  oled.setTextSize(2);
+  oled.print("EJECTING!\n\nDO NOT\nPOWER OFF!");
+  oled.display();
+
+  // TODO: Implement an actual ejecting routine
+  delay(1000);
+
+  oled.clearDisplay();
+  oled.setCursor(0, 0);
+  oled.setTextSize(1);
+  oled.print("Done. Device can be\nsafely powered off");
+  oled.display();
+
+  while(true);
 
 }
