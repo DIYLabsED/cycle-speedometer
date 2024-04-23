@@ -64,6 +64,10 @@ unsigned int memWipePrevSeconds = 0;
 boolean cycleDataInEEPROM = false; // True if cycle data is loaded into EEPROM, false if not
 const String cycleDataFileName = "info.txt";
 
+String riderName;
+String cycleName;
+float cycleWheelCircumference;
+
 int page = 0;
 const int numPages = 4;
 
@@ -562,7 +566,30 @@ void loadCycleData(){
 
   else{
 
-    Serial.println("file opened");
+    String data[3];
+    int pointer = 0;
+
+    while(cycleDataFile.available()){
+      
+      char c = cycleDataFile.read();
+
+      if(c == '\n'){
+
+        pointer++;
+
+      }
+      
+      else{
+
+        data[pointer] += c;
+
+      }
+  
+    }
+
+    cycleWheelCircumference = data[0];
+    cycleName = data[1];
+    riderName = data[2];
 
   }
 
