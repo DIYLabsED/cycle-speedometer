@@ -58,7 +58,7 @@ const unsigned int ejectSecondsTotal = 10;
 unsigned int ejectSecondsRemaining = ejectSecondsTotal;
 unsigned int ejectPrevSeconds = 0;
 
-const unsigned int memWipeSecondsTotal = 10;
+const unsigned int memWipeSecondsTotal = 30;
 unsigned int memWipeSecondsRemaining = memWipeSecondsTotal;
 unsigned int memWipePrevSeconds = 0;
 
@@ -76,7 +76,7 @@ const uint8_t riderNameAddr = 2;
 const uint8_t cycleNameAddr = 100;
 
 int page = 0;
-const int numPages = 4;
+const int numPages = 5;
 
 // Cross bitmap
 static const unsigned char PROGMEM bitmapCross[] = 
@@ -146,8 +146,6 @@ void loop(){
   updateTime();
 
   handleDisplay();
-
-  Serial.println(cycleDataInEEPROM);
 
 }
 
@@ -353,6 +351,10 @@ void handleDisplay(){
 
     case 3:
       displayFactoryReset();
+      break;
+
+    case 4:
+      displayInfo();
       break;
 
     default:
@@ -702,5 +704,19 @@ String readStringFromEEPROM(int addrOffset){
 
   data[newStrLen] = '\0'; 
   return String(data);
+
+}
+
+void displayInfo(){
+
+  oled.setTextSize(1);
+  oled.setCursor(0, 0);
+  oled.clearDisplay();
+
+  oled.println(cycleName);
+  oled.print(cycleWheelCircumferenceCM);
+  oled.println("cm");
+  oled.println(riderName);
+  
 
 }
