@@ -237,11 +237,11 @@ void initMicroSD(){
     oled.display();
 
     while(!BOOTSEL); // Waits until BOOTSEL button is pressed
-    while(BOOTSEL);  // Waits until BOOTSEL buttosn is released
+    while(BOOTSEL);  // Waits until BOOTSEL buttosn -is released
 
     noDataLogging = true;
 
-  } 
+  }
 
 }
 
@@ -398,7 +398,7 @@ void displayEject(){
       oled.clearDisplay();
       oled.setCursor(0, 0);
       oled.setTextSize(2);
-      oled.print("EJECT!");
+      oled.print("EJECT");
       oled.setCursor(0, 20);
       oled.setTextSize(1);
       oled.print("After ");
@@ -470,18 +470,18 @@ void displayMemoryWipe(){
       oled.clearDisplay();
       oled.setCursor(0, 0);
       oled.setTextSize(2);
-      oled.print("MEM WIPE!");
+      oled.print("FCTRY RST");
       oled.setCursor(0, 20);
       oled.setTextSize(1);
       oled.print("After ");
       oled.print(memWipeSecondsRemaining);
 
       if(memWipeSecondsRemaining == 1){
-        oled.print(" second,\nTHIS WILL\nIRREVERSIBLY DELETE\nEVERYTHING");
+        oled.print(" second,\nTHIS WILL\nIRREVERSIBLY DELETE\nEVERYTHING STORED IN EEPROM!");
       }
 
       else{
-        oled.print(" seconds,\nTHIS WILL\nIRREVERSIBLY DELETE\nEVERYTHING!");
+        oled.print(" seconds,\nTHIS WILL\nIRREVERSIBLY DELETE\nEVERYTHING STORED IN EEPROM!");
       }
 
       oled.display();
