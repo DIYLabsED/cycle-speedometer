@@ -12,11 +12,12 @@ DIY Labs 2024, youtube.com/@onelabtorulethemall, github.com/DIYLabsED
 #define WAIT_FOR_SERIAL // Comment out to disable waiting for serial port, used for debugging
 
 // Include libraries used
-#include <SPI.h>               //Dependency of microSD library
+#include <SPI.h>               // Dependency of microSD library
 #include <RP2040_SD.h>         // Library for microSD card
 #include <Adafruit_SSD1306.h>  // Adafruit's library for OLED display
 #include <RTClib.h>            // Adafruit's library for RTCs
 #include <Adafruit_NeoPixel.h> // Adafruit's library for NeoPixels
+#include <EEPROM.h>            // Library for emulating EEPROM in flash memory
 
 
 // Pin definitions
@@ -57,7 +58,7 @@ const unsigned int ejectSecondsTotal = 10;
 unsigned int ejectSecondsRemaining = ejectSecondsTotal;
 unsigned int ejectPrevSeconds = 0;
 
-const unsigned int memWipeSecondsTotal = 90;
+const unsigned int memWipeSecondsTotal = 10;
 unsigned int memWipeSecondsRemaining = memWipeSecondsTotal;
 unsigned int memWipePrevSeconds = 0;
 
@@ -66,7 +67,13 @@ const String cycleDataFileName = "info.txt";
 
 String riderName;
 String cycleName;
-float cycleWheelCircumference;
+uint8_t cycleWheelCircumferenceCM;
+
+const uint8_t circumferenceAddr = 1;
+const uint8_t cycleDataInEEPROMAddr = 0;
+
+const uint8_t riderNameAddr = 2;
+const uint8_t cycleNameAddr = 100;
 
 int page = 0;
 const int numPages = 4;
@@ -124,6 +131,7 @@ void setup(){
 
 
   setCommunicationPins();
+  initEEPROM();
   initNeoPixel();
   initOLED();
   initRTC();
@@ -138,6 +146,8 @@ void loop(){
   updateTime();
 
   handleDisplay();
+
+  Serial.println(cycleDataInEEPROM);
 
 }
 
@@ -254,6 +264,8 @@ void initMicroSD(){
 
   else{
 
+    loadInfoFromEEPROM();
+
     if(!cycleDataInEEPROM){
 
       Serial.println("cycle data not in eeprom");
@@ -269,6 +281,28 @@ void initMicroSD(){
 
       loadCycleData();
 
+      oled.clearDisplay();
+      oled.setCursor(0, 0);
+      oled.setTextSize(1);
+      oled.print("Check that this info is correct");
+      oled.setCursor(0, 25);
+      oled.println(cycleName);
+      oled.println(riderName);
+      oled.print(cycleWheelCircumferenceCM);
+      oled.display();
+
+      while(!BOOTSEL);
+      while(BOOTSEL);
+
+      oled.setCursor(0, 0);
+      oled.clearDisplay();
+      oled.setTextSize(1);
+      oled.print("Saving info to EEPROM\nPlease wait");
+      oled.display();
+
+      cycleDataInEEPROM = true;
+      saveInfoToEEPROM();
+       
     }
 
   }
@@ -301,8 +335,6 @@ void handleDisplay(){
 
   }
   
-  Serial.println(page);
-
   oled.clearDisplay();
 
   switch(page){
@@ -320,7 +352,7 @@ void handleDisplay(){
       break;
 
     case 3:
-      displayMemoryWipe();
+      displayFactoryReset();
       break;
 
     default:
@@ -488,7 +520,7 @@ void eject(){
 
 }
 
-void displayMemoryWipe(){
+void displayFactoryReset(){
 
   while(memWipeSecondsRemaining > 0){ // While timer has not expired
 
@@ -535,7 +567,7 @@ void displayMemoryWipe(){
   }
 
   // Timer has expired
-  //memWipe();
+  clearEEPROM();
 
   while(true);
 
@@ -587,10 +619,88 @@ void loadCycleData(){
   
     }
 
-    cycleWheelCircumference = data[0];
+    cycleWheelCircumferenceCM = data[0].toInt();
     cycleName = data[1];
     riderName = data[2];
 
   }
+
+}
+
+void saveInfoToEEPROM(){
+
+  EEPROM.write(circumferenceAddr, cycleWheelCircumferenceCM);
+  EEPROM.write(cycleDataInEEPROMAddr, cycleDataInEEPROM);
+
+  writeStringToEEPROM(cycleNameAddr, cycleName);
+  writeStringToEEPROM(riderNameAddr, riderName);
+  
+  EEPROM.commit();
+
+}
+
+void loadInfoFromEEPROM(){
+
+  cycleDataInEEPROM = EEPROM.read(cycleDataInEEPROM);
+  cycleWheelCircumferenceCM = EEPROM.read(circumferenceAddr);
+
+  cycleName = readStringFromEEPROM(cycleNameAddr);
+  riderName = readStringFromEEPROM(riderNameAddr);
+
+}
+
+void initEEPROM(){
+
+  EEPROM.begin(512);
+
+}
+
+void clearEEPROM(){
+
+  for(int i = 0; i < 512; i++){
+
+    EEPROM.write(i, 0);
+
+  }
+
+  EEPROM.commit();
+
+  while(!BOOTSEL);
+  while(BOOTSEL);
+
+  page++;
+  page = page % numPages;
+
+  handleDisplay();
+
+
+}
+
+void writeStringToEEPROM(int addrOffset, const String &string){
+
+  byte len = string.length();
+  EEPROM.write(addrOffset, len);
+
+  for(int i = 0; i < len; i++){
+
+    EEPROM.write(addrOffset + 1 + i, string[i]);
+
+  }
+
+}
+
+String readStringFromEEPROM(int addrOffset){
+
+  int newStrLen = EEPROM.read(addrOffset);
+  char data[newStrLen + 1];
+
+  for(int i = 0; i < newStrLen; i++){
+
+    data[i] = EEPROM.read(addrOffset + 1 + i);
+
+  }
+
+  data[newStrLen] = '\0'; 
+  return String(data);
 
 }
