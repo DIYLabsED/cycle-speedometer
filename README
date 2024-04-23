@@ -1,0 +1,3 @@
+# RP2040 bsaed cycle speedometer with GUI
+
+## A simple cycle speedometer that displays your speed, distance travelled in this ride, and the total distance travelled. GUI is implemented with an OLED display and a pushbutton.
