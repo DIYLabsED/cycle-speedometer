@@ -1,6 +1,9 @@
 /*
 A simple sketch for a cycle speedometer, which senses the rotation of
-the wheel, and displays your current speed/distance.
+the wheel, and displays your current speed/distance. And yes, I know 
+that the RP2040 chip doesn't have any EEPROM, and it is simulated in
+flash memory. I contiue to use EEPROM, because it's easier than saying
+"simulated EEPROM in flash memory".
 
 Written by Adbhut Patil
 DIY Labs 2024, youtube.com/@onelabtorulethemall, github.com/DIYLabsED
@@ -58,6 +61,9 @@ const unsigned int memWipeSecondsTotal = 90;
 unsigned int memWipeSecondsRemaining = memWipeSecondsTotal;
 unsigned int memWipePrevSeconds = 0;
 
+boolean cycleDataInEEPROM = false; // True if cycle data is loaded into EEPROM, false if not
+const String cycleDataFileName = "info.txt";
+
 int page = 0;
 const int numPages = 4;
 
@@ -97,7 +103,6 @@ const int bitmapCheckHeight = 8;
 
 
 // Objects used
-Sd2Card card; 
 Adafruit_SSD1306 oled(OLED_WIDTH, OLED_HEIGHT, &Wire1, -1);
 Adafruit_NeoPixel pixel(1, PIN_BUILTIN_RGB, NEO_RGB + NEO_KHZ800);
 RTC_DS3231 rtc;
@@ -136,10 +141,10 @@ void loop(){
 void setCommunicationPins(){
 
   // Set SPI0 pins, used for microSD card
-  SPI.setCS(1);
-  SPI.setSCK(2);
-  SPI.setRX(0);
-  SPI.setTX(3);
+  SPI.setCS(PIN_SD_CS);
+  SPI.setSCK(PIN_SD_SCK);
+  SPI.setRX(PIN_SD_MISO);
+  SPI.setTX(PIN_SD_MOSI);
 
   // Set I2C0 pins, used for RTC
   Wire.setSCL(PIN_RTC_SCL);
@@ -226,7 +231,7 @@ void initMicroSD(){
   Serial.println("initializing microSD");
 
   // If card does not initialize, ask user if they want to proceed without datalogging
-  if(!card.init(SPI_HALF_SPEED, 1)){
+  if(!SD.begin(PIN_SD_CS)){
   
     Serial.println("microsd init failed");
 
@@ -237,9 +242,30 @@ void initMicroSD(){
     oled.display();
 
     while(!BOOTSEL); // Waits until BOOTSEL button is pressed
-    while(BOOTSEL);  // Waits until BOOTSEL buttosn -is released
+    while(BOOTSEL);  // Waits until BOOTSEL button is released
 
     noDataLogging = true;
+
+  }
+
+  else{
+
+    if(!cycleDataInEEPROM){
+
+      Serial.println("cycle data not in eeprom");
+
+      oled.clearDisplay();
+      oled.setCursor(0, 0);
+      oled.setTextSize(1);
+      oled.print("Cycle data is not in EEPROM. Press BOOTSEL\nto start loading data\nfrom microSD card");
+      oled.display();
+
+      while(!BOOTSEL);
+      while(BOOTSEL);
+
+      loadCycleData();
+
+    }
 
   }
 
@@ -506,5 +532,38 @@ void displayMemoryWipe(){
 
   // Timer has expired
   //memWipe();
+
+  while(true);
+
+
+}
+
+void loadCycleData(){
+
+  File cycleDataFile;
+
+  cycleDataFile = SD.open("info.txt", FILE_READ);
+
+  if(!cycleDataFile){
+
+    Serial.println("failed to open cycle data file");
+
+    oled.clearDisplay();
+    oled.setCursor(0, 0);
+    oled.setTextSize(1);
+    oled.print("Failed to open cycle data file. Make sure the file is called\n`");
+    oled.print(cycleDataFileName);
+    oled.print("'");
+    oled.display();
+
+    while(true);
+
+  }
+
+  else{
+
+    Serial.println("file opened");
+
+  }
 
 }
