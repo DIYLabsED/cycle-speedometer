@@ -9,7 +9,7 @@ Written by Adbhut Patil
 DIY Labs 2024, youtube.com/@onelabtorulethemall, github.com/DIYLabsED
 */
 
-#define WAIT_FOR_SERIAL // Comment out to disable waiting for serial port, used for debugging
+//#define WAIT_FOR_SERIAL // Comment out to disable waiting for serial port, used for debugging
 
 // Include libraries used
 #include <SPI.h>               // Dependency of microSD library
@@ -352,7 +352,7 @@ void handleDisplay(){
     case 3:
       displayFactoryReset();
       break;
-
+      
     case 4:
       displayInfo();
       break;
@@ -571,9 +571,6 @@ void displayFactoryReset(){
   // Timer has expired
   clearEEPROM();
 
-  while(true);
-
-
 }
 
 void loadCycleData(){
@@ -681,11 +678,11 @@ void clearEEPROM(){
 void writeStringToEEPROM(int addrOffset, const String &string){
 
   byte len = string.length();
-  EEPROM.write(addrOffset, len);
+  EEPROM.write(addrOffset, len); // Write length of string
 
   for(int i = 0; i < len; i++){
 
-    EEPROM.write(addrOffset + 1 + i, string[i]);
+    EEPROM.write(addrOffset + 1 + i, string[i]); // Write chars in string
 
   }
 
@@ -693,16 +690,16 @@ void writeStringToEEPROM(int addrOffset, const String &string){
 
 String readStringFromEEPROM(int addrOffset){
 
-  int newStrLen = EEPROM.read(addrOffset);
+  int newStrLen = EEPROM.read(addrOffset); // Get length of string
   char data[newStrLen + 1];
 
   for(int i = 0; i < newStrLen; i++){
 
-    data[i] = EEPROM.read(addrOffset + 1 + i);
+    data[i] = EEPROM.read(addrOffset + 1 + i); // Loop over string and put it in a buffer
 
   }
 
-  data[newStrLen] = '\0'; 
+  data[newStrLen] = '\0'; // Null-terminate the string
   return String(data);
 
 }
